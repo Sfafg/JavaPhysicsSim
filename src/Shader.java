@@ -15,13 +15,16 @@ import static org.lwjgl.opengl.GL20.glGetProgrami;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL20.glLinkProgram;
 import static org.lwjgl.opengl.GL20.glShaderSource;
+import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL20.glUniform2i;
+import static org.lwjgl.opengl.GL20.glUniform3f;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import glm_.mat4x4.*;
+import glm_.vec3.*;
 
 public class Shader {
     int m_program;
@@ -59,11 +62,25 @@ public class Shader {
         glUniform2i(location, x, y);
     }
 
+    public void SetUniform(String name, Vec3 vec) {
+        int location = glGetUniformLocation(m_program, name);
+        if (location == -1)
+            System.out.println("Not found " + name + " in shader");
+        glUniform3f(location, vec.get(0), vec.get(1), vec.get(2));
+    }
+
     public void SetUniform(String name, Mat4 mat) {
         int location = glGetUniformLocation(m_program, name);
         if (location == -1)
             System.out.println("Not found " + name + " in shader");
         glUniformMatrix4fv(location, false, mat.toBuffer().asFloatBuffer());
+    }
+
+    public void SetUniform(String name, int value) {
+        int location = glGetUniformLocation(m_program, name);
+        if (location == -1)
+            System.out.println("Not found " + name + " in shader");
+        glUniform1i(location, value);
     }
 
     public void Use() {

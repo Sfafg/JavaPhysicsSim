@@ -49,11 +49,7 @@ public class Buffer<T extends ISerializable> {
         return bytes;
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            glDeleteBuffers(m_id);
-        } finally {
-        }
+    public void Delete() {
+        glDeleteBuffers(m_id);
     }
 }

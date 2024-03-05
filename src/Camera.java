@@ -39,6 +39,14 @@ public class Camera {
         rotation.timesAssign(glm.INSTANCE.angleAxis(z, new Vec3(0, 0, 1)));
     }
 
+    public Mat4 GetView() {
+        Mat4 lookAt = glm.INSTANCE.lookAt(
+                position,
+                position.plus(rotation.times(new Vec3(0, 0, 1))),
+                Up());
+        return lookAt;
+    }
+
     public Mat4 GetMatrix() {
         Mat4 lookAt = glm.INSTANCE.lookAt(
                 position,

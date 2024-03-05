@@ -1,13 +1,17 @@
 package src;
 
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import glm_.vec3.*;
 import java.util.ArrayList;
 
-public class SphereMesh extends Mesh<Vertex> {
-    public SphereMesh(float rad, int res) {
-        super(CreateVertices(rad, res), GL_TRIANGLES);
+public class Sphere extends Shape {
+    public Sphere(float rad, int res) {
+        super(CreateVertices(rad, res));
+    }
+
+    private static Sphere mesh = new Sphere(1, 30);
+
+    static void Draw(ArrayList<InstanceData> data) {
+        mesh.DrawInstanced(data);
     }
 
     static ArrayList<Vertex> CreateVertices(float rad, int res) {
@@ -27,13 +31,13 @@ public class SphereMesh extends Mesh<Vertex> {
                         Lerp((i + 1) / (float) res, (float) -Math.PI, (float) Math.PI),
                         Lerp((j + 1) / (float) res, 0, (float) Math.PI));
 
-                verts.add(new Vertex(a.times(rad), new Vec3(a)));
-                verts.add(new Vertex(b.times(rad), new Vec3(b)));
-                verts.add(new Vertex(c.times(rad), new Vec3(c)));
+                verts.add(new Vertex(a.times(rad), new Vec3(a).normalize()));
+                verts.add(new Vertex(b.times(rad), new Vec3(b).normalize()));
+                verts.add(new Vertex(c.times(rad), new Vec3(c).normalize()));
 
-                verts.add(new Vertex(c.times(rad), new Vec3(c)));
-                verts.add(new Vertex(d.times(rad), new Vec3(d)));
-                verts.add(new Vertex(b.times(rad), new Vec3(b)));
+                verts.add(new Vertex(c.times(rad), new Vec3(c).normalize()));
+                verts.add(new Vertex(b.times(rad), new Vec3(b).normalize()));
+                verts.add(new Vertex(d.times(rad), new Vec3(d).normalize()));
             }
         }
 
@@ -50,5 +54,4 @@ public class SphereMesh extends Mesh<Vertex> {
                 (float) Math.sin(theta) * (float) Math.sin(fi),
                 (float) Math.cos(theta));
     }
-
 }

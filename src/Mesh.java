@@ -34,9 +34,10 @@ public class Mesh<TVert extends ISerializable & IAttributes> {
 
     public <TInstance extends ISerializable & IAttributes> void DrawInstanced(ArrayList<TInstance> arr) {
         glBindVertexArray(m_vao);
-        new Buffer<TInstance>(arr, GL_ARRAY_BUFFER, GL_STREAM_DRAW);
+        Buffer<TInstance> buffer = new Buffer<TInstance>(arr, GL_ARRAY_BUFFER, GL_STREAM_DRAW);
         arr.get(0).Attributes();
         glDrawArraysInstanced(mode, 0, vertexCount, arr.size());
+        buffer.Delete();
     }
 
     @Override
