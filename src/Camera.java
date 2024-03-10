@@ -10,11 +10,9 @@ public class Camera {
     public Quat rotation;
     Mat4 projection;
 
-    public Camera(Vec3 position, Quat rotation, float fov, float aspectRatio, float nearPlane, float farPlane) {
+    public Camera(Vec3 position, Quat rotation) {
         this.position = position;
         this.rotation = rotation;
-
-        SetProjection(fov, aspectRatio, nearPlane, farPlane);
     }
 
     public void SetProjection(float fov, float aspectRatio, float nearPlane, float farPlane) {
@@ -37,6 +35,10 @@ public class Camera {
         rotation.timesAssign(glm.INSTANCE.angleAxis(x, new Vec3(1, 0, 0)));
         rotation.timesAssign(glm.INSTANCE.angleAxis(y, new Vec3(0, 1, 0)));
         rotation.timesAssign(glm.INSTANCE.angleAxis(z, new Vec3(0, 0, 1)));
+    }
+
+    public Mat4 GetTransform() {
+        return rotation.toMat4().translate(position);
     }
 
     public Mat4 GetView() {

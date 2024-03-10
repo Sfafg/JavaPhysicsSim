@@ -8,7 +8,7 @@ public class Sphere extends Shape {
         super(CreateVertices(rad, res));
     }
 
-    private static Sphere mesh = new Sphere(1, 30);
+    private static Sphere mesh = new Sphere(1, 40);
 
     static void Draw(ArrayList<InstanceData> data) {
         mesh.DrawInstanced(data);
