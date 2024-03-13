@@ -17,16 +17,16 @@ out vec4 fragColor;
 
 float Depth(vec2 uv, vec2 offset)
 {
-    float depth = texture(gDepth, uv + offset / resolution * 3).r; 
+    float depth = texture(gDepth, uv + offset / resolution ).r; 
     return (2.0 * nearPlane) / (farPlane + nearPlane - depth * (farPlane - nearPlane));   
 }
 
 void main()
 {    
     float depth = Depth(uv, vec2(0,0));
-    vec3 e = vec3(-1,0,1) / (depth + 1);
+    vec3 e = vec3(-1,0,1) ;
     float s = depth * 4 - Depth(uv, e.xy)- Depth(uv, e.yz)- Depth(uv, e.zy)- Depth(uv, e.yx);
-    if(s > 0.003)
+    if(abs(s) > mix(0.001,1.0,depth * depth))
     {
         fragColor = vec4(0,0,0,1);
     }
@@ -35,7 +35,8 @@ void main()
         vec3 albedo = texture(gAlbedoSmoothness, uv).rgb;
         float smoothness = texture(gAlbedoSmoothness, uv).w;
         vec3 p = texture(gPosition, uv).xyz;
-        vec3 normal = (texture(gNormal, uv).xyz);
+        vec3 normal = -(texture(gNormal, uv).xyz);
+        normal.z = -normal.z;
         float ambientOclusion = texture(ssaoTexture,uv).r;
 
         vec3 toLight = normalize(lightPos - p);
@@ -50,6 +51,6 @@ void main()
         float specular = max(0,dot(toCamera, reflectionDir));
         specular = pow(specular, smoothness * 100);
         if(ambientOclusion == 0) ambientOclusion = 1;
-        fragColor = vec4((diffuse + specular) * ambientOclusion ,1);
+        fragColor = vec4((diffuse + specular * smoothness) * ambientOclusion ,1);
     }
 }

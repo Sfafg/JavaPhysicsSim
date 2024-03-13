@@ -13,14 +13,16 @@ uniform ivec2 resolution;
 out float FragColor;
 
 int kernelSize = 8;
-float radius = 0.5;
+float radius = 0.25;
 float bias = 0.02;
 void main()
 {
     vec2 noiseScale = resolution / 4.0; 
     vec3 fragPos = (view * vec4(texture(gPosition, uv).xyz,1)).xyz;
     mat3 normalMatrix = transpose(inverse(mat3(view)));
-    vec3 normal = normalMatrix * texture(gNormal, uv).rgb;
+    vec3 normal = -texture(gNormal, uv).rgb;
+    normal.z = -normal.z;
+    normal = normalMatrix * normal;
     vec3 randomVec = normalize(texture(ssaoNoise, uv * noiseScale).xyz);
     vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);

@@ -1,49 +1,14 @@
 package src;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_FLAT;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_RED;
-import static org.lwjgl.opengl.GL11.GL_REPEAT;
-import static org.lwjgl.opengl.GL11.GL_RGB;
-import static org.lwjgl.opengl.GL11.GL_RGBA;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glFlush;
-import static org.lwjgl.opengl.GL11.glViewport;
-import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
-import static org.lwjgl.opengl.GL13.GL_CLAMP_TO_BORDER;
-import static org.lwjgl.opengl.GL20.glDrawBuffers;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
-import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT1;
-import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT2;
-import static org.lwjgl.opengl.GL30.GL_DEPTH_ATTACHMENT;
-import static org.lwjgl.opengl.GL30.GL_RGB32F;
-
 import java.util.ArrayList;
 import java.util.Random;
-
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GLUtil;
-
+import glm_.quat.QuatD;
 import glm_.quat.Quat;
-import glm_.vec2.Vec2;
-import glm_.vec2.Vec2i;
 import glm_.vec3.*;
-import glm_.vec4.*;
-import glm_.detail.noise;
-import glm_.mat4x4.Mat4;
+import glm_.colorSpace;
+import glm_.mat4x4.Mat4d;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
@@ -55,53 +20,65 @@ public class Main {
 
         // Rendering and Displaying.
         SimulationWindow window = new SimulationWindow();
-        WindowCamera camera = new WindowCamera(new Vec3(0, 2, -2), new Quat(), window);
+        WindowCamera camera = new WindowCamera(new Vec3(0, 5, -2), new Quat(), window);
         Renderer renderer = new Renderer(window, camera);
 
         // Physics.
-        PhysicsEnvirement envirement = new PhysicsEnvirement(1);
+        new Physics(100);
 
-        // Initialize matrices for instanced rendering.
-        Random generator = new Random();
-        ArrayList<InstanceData> spheres = new ArrayList<>(1);
-        Transform tr = new Transform(new Vec3(0, 0, 0), new Vec3(1, 1, 1), new Quat());
-        envirement.Add(new Rigidbody(tr, new SphereCollider(tr), new Vec3(0, 0, 0)));
-        spheres.add(new InstanceData(tr.matrix, new Vec3(1, 1, 1)));
-        spheres.add(new InstanceData(new Mat4().identity(), new Vec3(1, 0, 0)));
-        for (int i = 0; i < 0; i++) {
-            Vec3 pos = new Vec3(
-                    generator.nextFloat() * 10 - 5,
-                    generator.nextFloat() * 10 - 5,
-                    generator.nextFloat() * 10 - 5);
-            Vec3 scale = new Vec3(generator.nextFloat());
-            Vec3 vel = new Vec3(
-                    generator.nextFloat() - 0.5,
-                    generator.nextFloat() - 0.5,
-                    generator.nextFloat() - 0.5);
-            Transform transform = new Transform(pos, scale, new Quat().angleAxis(generator.nextFloat(), vel));
-            Rigidbody rigidbody = new Rigidbody(
-                    transform,
-                    new SphereCollider(transform), vel);
+        ArrayList<InstanceData> spheres = new ArrayList<>(100);
+        ArrayList<InstanceData> boxes = new ArrayList<>(100);
 
-            envirement.Add(rigidbody);
+        Double inf = Double.POSITIVE_INFINITY;
+        Transform tr = new Transform(new Vec3d(0, -0.1, 0), new Vec3d(5.2, 0.2, 5.2), new QuatD());
+        Physics.Add(new Rigidbody(new BoxCollider(tr), new Vec3d(0, 0, 0), inf, false), inf);
+        boxes.add(new InstanceData(tr.matrix, new Vec3(0, 0.5, 1), 0.01f));
+        tr = new Transform(new Vec3d(-2.5, 1, 0), new Vec3d(0.2, 2, 5.2), new QuatD());
+        Physics.Add(new Rigidbody(new BoxCollider(tr), new Vec3d(0, 0, 0), inf, false), inf);
+        boxes.add(new InstanceData(tr.matrix, new Vec3(0, 0.5, 1), 0.01f));
+        tr = new Transform(new Vec3d(2.5, 1, 0), new Vec3d(0.2, 2, 5.2), new QuatD());
+        Physics.Add(new Rigidbody(new BoxCollider(tr), new Vec3d(0, 0, 0), inf, false), inf);
+        boxes.add(new InstanceData(tr.matrix, new Vec3(0, 0.5, 1), 0.01f));
+        tr = new Transform(new Vec3d(0, 1, -2.5), new Vec3d(4.8, 2, 0.2), new QuatD());
+        Physics.Add(new Rigidbody(new BoxCollider(tr), new Vec3d(0, 0, 0), inf, false), inf);
+        boxes.add(new InstanceData(tr.matrix, new Vec3(0, 0.5, 1), 0.01f));
+        tr = new Transform(new Vec3d(0, 1, 2.5), new Vec3d(4.8, 2, 0.2), new QuatD());
+        Physics.Add(new Rigidbody(new BoxCollider(tr), new Vec3d(0, 0, 0), inf, false), inf);
+        boxes.add(new InstanceData(tr.matrix, new Vec3(0, 0.5, 1), 0.01f));
+        Transform box = new Transform(new Vec3d(0, 2, 0), new Vec3d(0.5), new QuatD());
+        Physics.Add(new Rigidbody(new BoxCollider(box), new Vec3d(0, 0, 0), inf, false), 0);
+        boxes.add(new InstanceData(box.matrix, new Vec3(0, 0.5, 1), 0.01f));
 
-            spheres.add(new InstanceData(
-                    envirement.rigidbodies.get(i).transform.matrix,
-                    new Vec3(generator.nextFloat(), generator.nextFloat(), generator.nextFloat())));
-        }
+        tr = new Transform(new Vec3d(-1, 2, 0), new Vec3d(0.2), new QuatD());
+        Physics.Add(new Rigidbody(new SphereCollider(tr), new Vec3d(1, 0, 0), 1));
+        spheres.add(new InstanceData(tr.matrix, new Vec3(1, 1, 1), 0.9f));
 
-        ArrayList<InstanceData> planes = new ArrayList<>();
-        planes.add(new InstanceData(new Mat4().identity().scale(0), new Vec3(0, 0.5, 0)));
+        tr = new Transform(new Vec3d(1, 2, 0), new Vec3d(0.2), new QuatD());
+        Physics.Add(new Rigidbody(new SphereCollider(tr), new Vec3d(-1, 0, 0), 1));
+        spheres.add(new InstanceData(tr.matrix, new Vec3(1, 0, 0), 0.5f));
 
+        int n = 0;
         while (!window.ShouldClose()) {
-
             camera.Update();
-            renderer.Draw(spheres, planes);
+            renderer.Draw(spheres, null, boxes);
 
-            envirement.Update(0.01f);
+            Physics.Update(0.125f / 4);
 
             window.Swap();
             glfwPollEvents();
+
+            n++;
+            if (Physics.rigidbodies.size() > 100 || n % 10 != 0)
+                continue;
+
+            Collider collider = new SphereCollider(
+                    new Transform(new Vec3d(0, 3, 0), new Vec3d(Rand.Dobule(0.1, 0.3)), new QuatD()));
+
+            if (Physics.IsColliding(collider))
+                continue;
+
+            Physics.Add(new Rigidbody(collider, Rand.Vec3d(-0.5, 0.5), collider.transform.Scale().getX()));
+            spheres.add(new InstanceData(collider.transform.matrix, Rand.Vec3(), 0.5f));
         }
         glfwTerminate();
     }

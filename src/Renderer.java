@@ -16,6 +16,7 @@ import static org.lwjgl.opengl.GL30.GL_RGB32F;
 import java.util.ArrayList;
 import java.util.Random;
 
+import glm_.mat4x4.Mat4d;
 import glm_.vec2.Vec2i;
 import glm_.vec3.Vec3;
 
@@ -89,15 +90,20 @@ public class Renderer {
 
     }
 
-    public void Draw(ArrayList<InstanceData> spheres, ArrayList<InstanceData> planes) {
+    public void Draw(ArrayList<InstanceData> spheres, ArrayList<InstanceData> planes, ArrayList<InstanceData> boxes) {
         // Render to G-Buffer.
         gBufferPass.fbo.Clear(Float.MAX_VALUE, new int[] { GL_COLOR_ATTACHMENT1 });
-        gBufferPass.fbo.Clear(new Vec3(0, 0, 0), new int[] { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT2 });
+        gBufferPass.fbo.Clear(new Vec3(0, 0, 0), new int[] { GL_COLOR_ATTACHMENT2 });
+        gBufferPass.fbo.Clear(new Vec3(0.3, 0.4, 0.6), new int[] { GL_COLOR_ATTACHMENT0 });
         gBufferPass.Bind();
         gBufferPass.SetUniform("projectionMatrix", camera.projection);
         gBufferPass.SetUniform("viewMatrix", camera.GetView());
-        Sphere.Draw(spheres);
-        Plane.Draw(planes);
+        if (spheres != null)
+            Sphere.Draw(spheres);
+        if (planes != null)
+            Plane.Draw(planes);
+        if (boxes != null)
+            Box.Draw(boxes);
 
         // Render SSAO.
         ssaoTexture.Resize(window.GetSize().div(2));
@@ -107,7 +113,7 @@ public class Renderer {
         ssaoPass.SetUniform("projection", camera.projection);
         ssaoPass.SetUniform("resolution", window.GetSize());
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        ssaoTexture.BoxBlur(2);
+        ssaoTexture.BoxBlur(1);
 
         // Lighning pass.
         lightPass.Bind();

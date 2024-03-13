@@ -9,8 +9,8 @@ public class SimulationWindow extends Window {
     public SimulationWindow() {
         super(
                 "Physics Simulation",
-                new Vec2i(1920, 1080),
-                new Vec2(1, 1), new Vec2(1, 1),
+                new Vec2i(1920 * 0.7, 1080 * 1),
+                new Vec2(1, 0), new Vec2(1, 0),
                 new int[] { GLFW_DECORATED, GLFW_RESIZABLE },
                 new int[] { 0, 1 });
     }

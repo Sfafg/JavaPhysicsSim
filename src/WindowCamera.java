@@ -58,7 +58,7 @@ public class WindowCamera extends Camera {
         if (window.IsButton(GLFW_MOUSE_BUTTON_1))
             Rotate(mouseDelta.getY() * 0.005f, -mouseDelta.getX() * 0.005f, 0);
         float speed = 0.05f
-                * (window.IsKey(GLFW_KEY_LEFT_SHIFT) ? 0.1f : 1)
+                * (window.IsKey(GLFW_KEY_LEFT_SHIFT) ? 0.05f : 1)
                 * (window.IsKey(GLFW_KEY_LEFT_CONTROL) ? 5f : 1);
 
         Vec3 dir = new Vec3(

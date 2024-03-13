@@ -1,81 +1,128 @@
 package src;
 
-import glm_.mat4x4.Mat4;
+import javax.lang.model.element.QualifiedNameable;
+
+import glm_.mat4x4.Mat4d;
+import glm_.quat.QuatD;
 import glm_.quat.Quat;
-import glm_.vec3.Vec3;
-import glm_.vec4.Vec4;
+import glm_.vec3.Vec3d;
+import glm_.vec4.Vec4d;
 
 public class Transform {
-    Vec3 position;
-    Vec3 scale;
-    Quat rotation;
-    Mat4 matrix;
+    Vec3d position;
+    Vec3d scale;
+    QuatD rotation;
+    Mat4d matrix;
 
-    public Transform(Vec3 position, Vec3 scale, Quat rotation) {
+    public Transform(Vec3d position, Vec3d scale, QuatD rotation) {
         this.position = position;
         this.scale = scale;
         this.rotation = rotation;
-        this.matrix = rotation.toMat4().scale(scale).translate(position);
+        this.matrix = new Mat4d().identity().translate(position).scale(scale).times(toMat(rotation));
     }
 
-    public Vec3 ToGlobal(Vec3 point) {
-        return matrix.times(new Vec4(point.getX(), point.getY(), point.getZ(), 1.0)).toVec3();
+    private Mat4d toMat(QuatD q) {
+        double q0 = q.get(0);
+        double q1 = q.get(1);
+        double q2 = q.get(2);
+        double q3 = q.get(3);
+        return new Mat4d(
+                new double[] {
+                        2.0 * (q0 * q0 + q1 * q1) - 1.0, 2.0 * (q1 * q2 - q0 * q3), 2.0 * (q1 * q3 + q0 *
+                                q2),
+                        0.0,
+                        2.0 * (q1 * q2 + q0 * q3), 2.0 * (q0 * q0 + q2 * q2) - 1.0, 2.0 * (q2 * q3 - q0 *
+                                q1),
+                        0.0,
+                        2.0 * (q1 * q3 - q0 * q2), 2.0 * (q2 * q3 + q0 * q1), 2.0 * (q0 * q0 + q3 * q3) -
+                                1.0,
+                        0.0,
+                        0.0, 0.0, 0.0, 1.0
+                });
     }
 
-    public Vec3 ToGlobalDir(Vec3 point) {
-        return matrix.times(new Vec4(point.getX(), point.getY(), point.getZ(), 0.0)).toVec3();
+    public Vec3d ToGlobal(Vec3d point) {
+        Vec4d v = new Vec4d();
+        v.setX(point.getX());
+        v.setY(point.getY());
+        v.setZ(point.getZ());
+        v.setW(1);
+        v = matrix.times(v);
+        return new Vec3d(v.getX(), v.getY(), v.getZ());
     }
 
-    public Vec3 ToLocal(Vec3 point) {
-        return Inverse().times(new Vec4(point.getX(), point.getY(), point.getZ(), 1.0)).toVec3();
+    public Vec3d ToGlobalDir(Vec3d point) {
+        Vec4d v = new Vec4d();
+        v.setX(point.getX());
+        v.setY(point.getY());
+        v.setZ(point.getZ());
+        v.setW(0);
+        v = matrix.times(v);
+        return new Vec3d(v.getX(), v.getY(), v.getZ());
     }
 
-    public Vec3 ToLocalDir(Vec3 point) {
-        return Inverse().times(new Vec4(point.getX(), point.getY(), point.getZ(), 0.0)).toVec3();
+    public Vec3d ToLocal(Vec3d point) {
+        Vec4d v = new Vec4d();
+        v.setX(point.getX());
+        v.setY(point.getY());
+        v.setZ(point.getZ());
+        v.setW(1);
+        v = Inverse().times(v);
+        return new Vec3d(v.getX(), v.getY(), v.getZ());
     }
 
-    public Mat4 Inverse() {
-        Vec3 p = position.minus(position).minus(position);
-        Vec3 s = scale.minus(scale).minus(scale);
-        Quat r = rotation.minus(rotation).minus(rotation);
-        return new Mat4().translate(p).scale(s).times(r.toMat4());
+    public Vec3d ToLocalDir(Vec3d point) {
+        Vec4d v = new Vec4d();
+        v.setX(point.getX());
+        v.setY(point.getY());
+        v.setZ(point.getZ());
+        v.setW(0);
+        v = Inverse().times(v);
+        return new Vec3d(v.getX(), v.getY(), v.getZ());
     }
 
-    public Mat4 Matrix() {
+    public Mat4d Inverse() {
+        Vec3d p = position.negate();
+        Vec3d s = new Vec3d(1, 1, 1).div(scale);
+        QuatD r = rotation.inverse();
+        return toMat(r).scale(s).translate(p);
+    }
+
+    public Mat4d Matrix() {
         return matrix;
     }
 
-    public Vec3 Position() {
+    public Vec3d Position() {
         return position;
     }
 
-    public void SetPosition(Vec3 position) {
+    public void SetPosition(Vec3d position) {
         this.position = position;
-        Mat4 newMat = rotation.toMat4().scale(scale).translate(position);
+        Mat4d newMat = new Mat4d().identity().translate(position).scale(scale).times(toMat(rotation));
         for (int i = 0; i < 4; i++) {
             this.matrix.set(i, newMat.get(i));
         }
     }
 
-    public Vec3 Scale() {
+    public Vec3d Scale() {
         return scale;
     }
 
-    public void SetScale(Vec3 scale) {
+    public void SetScale(Vec3d scale) {
         this.scale = scale;
-        Mat4 newMat = rotation.toMat4().scale(scale).translate(position);
+        Mat4d newMat = new Mat4d().identity().translate(position).scale(scale).times(toMat(rotation));
         for (int i = 0; i < 4; i++) {
             this.matrix.set(i, newMat.get(i));
         }
     }
 
-    public Quat Rotation() {
+    public QuatD Rotation() {
         return rotation;
     }
 
-    public void SetRotation(Quat rotation) {
+    public void SetRotation(QuatD rotation) {
         this.rotation = rotation;
-        Mat4 newMat = rotation.toMat4().scale(scale).translate(position);
+        Mat4d newMat = new Mat4d().identity().translate(position).scale(scale).times(toMat(rotation));
         for (int i = 0; i < 4; i++) {
             this.matrix.set(i, newMat.get(i));
         }
