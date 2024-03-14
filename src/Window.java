@@ -9,7 +9,6 @@ import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glViewport;
 
 import java.util.ArrayList;
-import org.lwjgl.opengl.GLUtil;
 
 import glm_.vec2.*;
 

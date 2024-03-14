@@ -1,10 +1,7 @@
 package src;
 
-import javax.lang.model.element.QualifiedNameable;
-
 import glm_.mat4x4.Mat4d;
 import glm_.quat.QuatD;
-import glm_.quat.Quat;
 import glm_.vec3.Vec3d;
 import glm_.vec4.Vec4d;
 

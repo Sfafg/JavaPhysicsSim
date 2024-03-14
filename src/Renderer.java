@@ -16,7 +16,6 @@ import static org.lwjgl.opengl.GL30.GL_RGB32F;
 import java.util.ArrayList;
 import java.util.Random;
 
-import glm_.mat4x4.Mat4d;
 import glm_.vec2.Vec2i;
 import glm_.vec3.Vec3;
 
@@ -73,7 +72,6 @@ public class Renderer {
             ssaoNoise[i * 3 + 1] = generator.nextFloat() * 2 - 1;
             ssaoNoise[i * 3 + 2] = 0;
         }
-
         Texture2D noiseTexture = new Texture2D(new Vec2i(4, 4), GL_RGB32F, GL_RGB, ssaoNoise);
         ssaoTexture = new Texture2D(wSize.div(2), GL_RED, GL_RED).SetWrap(GL_CLAMP_TO_EDGE);
         ssaoPass = new RenderPass(
@@ -98,11 +96,11 @@ public class Renderer {
         gBufferPass.Bind();
         gBufferPass.SetUniform("projectionMatrix", camera.projection);
         gBufferPass.SetUniform("viewMatrix", camera.GetView());
-        if (spheres != null)
+        if (spheres != null && spheres.size() != 0)
             Sphere.Draw(spheres);
-        if (planes != null)
+        if (planes != null && spheres.size() != 0)
             Plane.Draw(planes);
-        if (boxes != null)
+        if (boxes != null && spheres.size() != 0)
             Box.Draw(boxes);
 
         // Render SSAO.
